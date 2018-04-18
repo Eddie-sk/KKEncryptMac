@@ -13,6 +13,8 @@
 #import "KKAESCrypt+NSData.h"
 #import "NSString+KKBase64.h"
 
+static NSString *const kEncryptPasswordKey = @"kEncryptPasswordKey";
+
 @interface ViewController ()
 @property (weak) IBOutlet NSTextField *keyTF;
 @property (unsafe_unretained) IBOutlet NSTextView *origainTV;
@@ -28,18 +30,46 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    NSString *skey = [[NSUserDefaults standardUserDefaults] objectForKey:kEncryptPasswordKey];
+    if (skey && skey.length > 0) {
+        _sKey = [skey copy];
+        _keyTF.stringValue = _sKey;
+    }
     
 }
 
 - (IBAction)encrypt:(id)sender {
     if (_keyTF.stringValue && _origainTV.string) {
         
-        _sKey = @"abcdefghijklmnop";
+        NSString *skey = _keyTF.stringValue;
+        _iv = [_sKey md5String];
+        NSData *origainData = [_origainTV.string dataUsingEncoding:NSUTF8StringEncoding];
+        NSString *enctypeStr = [KKAESCrypt encryptBinary:origainData password:_sKey initIv:_iv];
+        if (enctypeStr && enctypeStr.length > 0) {
+            _paTV.string = enctypeStr;
+        }
+        if (![skey isEqualToString:_sKey]) {
+            _sKey = [skey copy];
+            [[NSUserDefaults standardUserDefaults] setObject:_sKey forKey:kEncryptPasswordKey];
+        }
+    }
+}
+- (IBAction)dencrypt:(id)sender {
+    if (_keyTF.stringValue && _origainTV.string) {
+        
+        NSString *skey = _keyTF.stringValue;
         _iv = [_sKey md5String];
         NSData *decodeData = [KKAESCrypt decrypt2Binary:_origainTV.string password:_sKey initIv:_iv];
         
         NSString *decodeStr = [[NSString alloc] initWithData:decodeData encoding:NSUTF8StringEncoding];
+        if (decodeStr && decodeStr.length > 0) {
+            _paTV.string = decodeStr;
+        }
         _paTV.string = decodeStr;
+        if (![skey isEqualToString:_sKey]) {
+            _sKey = [skey copy];
+            [[NSUserDefaults standardUserDefaults] setObject:_sKey forKey:kEncryptPasswordKey];
+        }
     }
 }
 
