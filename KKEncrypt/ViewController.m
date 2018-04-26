@@ -42,9 +42,9 @@ static NSString *const kEncryptPasswordKey = @"kEncryptPasswordKey";
     if (_keyTF.stringValue && _origainTV.string) {
         
         NSString *skey = _keyTF.stringValue;
-        _iv = [_sKey md5String];
+        _iv = [skey md5String];
         NSData *origainData = [_origainTV.string dataUsingEncoding:NSUTF8StringEncoding];
-        NSString *enctypeStr = [KKAESCrypt encryptBinary:origainData password:_sKey initIv:_iv];
+        NSString *enctypeStr = [KKAESCrypt encryptBinary:origainData password:skey initIv:_iv];
         if (enctypeStr && enctypeStr.length > 0) {
             _paTV.string = enctypeStr;
         }
@@ -58,8 +58,8 @@ static NSString *const kEncryptPasswordKey = @"kEncryptPasswordKey";
     if (_keyTF.stringValue && _origainTV.string) {
         
         NSString *skey = _keyTF.stringValue;
-        _iv = [_sKey md5String];
-        NSData *decodeData = [KKAESCrypt decrypt2Binary:_origainTV.string password:_sKey initIv:_iv];
+        _iv = [skey md5String];
+        NSData *decodeData = [KKAESCrypt decrypt2Binary:_origainTV.string password:skey initIv:_iv];
         
         NSString *decodeStr = [[NSString alloc] initWithData:decodeData encoding:NSUTF8StringEncoding];
         if (decodeStr && decodeStr.length > 0) {
